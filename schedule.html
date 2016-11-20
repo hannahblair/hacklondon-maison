@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.12.0.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+    <script src="moment.js"></script>
+    <script src="bootstrap-datetimepicker.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.css">
+
+    <script>
+
+        $(document).ready(function(){
+            $('.container').hide();
+            $('#succededAlert').hide();
+            $('#errorAlert').hide();
+            $('#datetimepicker1').datetimepicker();
+
+            fetchUsers();
+            fetchTasks();
+
+            //events
+            $('#everyone').click(function(){
+                $('#flatmates').children().prop("checked",true);
+            });
+
+            $('#noone').click(function(){
+                $('#flatmates').children().prop("checked",false);
+            });
+
+            //show/hide form
+            $('#showform').click(function(){
+                $('.container').show();
+                $('#showform').hide();
+            });
+
+            $('#hideform').click(function(){
+                $('.container').hide();
+                $('#showform').show();
+            });
+
+            $('.remind').click(function(){
+
+            });
+
+            $('#addtaskbtn').click(function (){
+                //we get the users that have been checked
+                var checkedUsers = new Array();
+                for(i = 0; i < $('#flatmates').children('input').length; i++){
+                    var element = $('#flatmates').children('input')[i];
+                    if(element.checked)
+                        checkedUsers.push(element.value);
+                }
+                //validation
+                if($('#taskname').val().length < 4 || $('#date').val().length < 1){
+                    $('#errorAlert').fadeIn();
+                    setTimeout(function() {
+                        $('#errorAlert').fadeOut();
+
+                    }, 2500);
+                    return;
+                }
+                //post request
+                var data = {
+                    date: $('#date').val(),
+                    taskName: $('#taskname').val(),
+                    users: checkedUsers};
+
+                $.ajax({
+                    type: "POST",
+                    url: '/addTask',
+                    data: data,
+                    success: function (response) {
+                        $('#succededAlert').fadeIn();
+                        setTimeout(function() {
+                            $('#succededAlert').fadeOut();
+
+                        }, 2500);
+                    }
+                });
+            });
+        });
+
+        function remind(name){
+            $.get("/sendTaskReminders/" + name, function (data, status) {
+                console.log(status);
+            });
+        }
+
+        function fetchUsers() {
+            $.get("/getAllUsers", function (data, status) {
+
+                //for each user I add a checkbox
+                for (i = 0; i < data.users.length; i++) {
+                    var userName = data.users[i].name;
+                    $('#flatmates').append('<input type="checkbox" value="' + userName + '">' + userName + '<br/>');
+                }
+            });
+        }
+
+        function deleteTask(name){
+
+            $.ajax({
+                type: "POST",
+                url: '/removeTask',
+                data: {taskName : name},
+                success: function (response) {
+                    $('#'+name).remove();
+                }
+            });
+        }
+
+        function fetchTasks(){
+            $.get("/getAllTasks", function(data, status){
+
+                //I switch day and month (american format prevent the sorting to work)
+                /*for(i = 0; i < data.tasks.length; ++i) {
+                    var monthUS = data.tasks[i].date.substr(0,2); //tmp = month in us format
+                    var dayUS = data.tasks[i].date.substr(3,2);
+                    data.tasks[i].date[0] = dayUS[0];
+                    data.tasks[i].date[1] = dayUS[1];
+                    data.tasks[i].date[3] = monthUS[0];
+                    data.tasks[i].date[4] = monthUS[1];
+                    console.log(data.tasks[i]);
+                }*/
+
+                /*sort the array by dates
+                data.tasks.sort(function(a,b){
+                    // Turn your strings into dates, and then subtract them
+                    // to get a value that is either negative, positive, or zero.
+                    return !(new Date(b.date) - new Date(a.date));
+                });*/
+
+                for(i = 0; i < data.tasks.length; ++i) {
+                    if(data.tasks[i].persons == null || data.tasks[i].persons.length == 0){
+                        $('.tasklist').append('<li>' + data.tasks[i].date + " - " + data.tasks[i].name + '</li>');
+                        continue;
+                    }
+                    var users = data.tasks[i].persons[0];
+
+                    for(j = 1; j < data.tasks[i].persons.length; j++){
+                        users += ", " + data.tasks[i].persons[j];
+                    }
+                    $('.tasklist').append('<li class="taskelement" id="'+data.tasks[i].name+'" href="#">' + data.tasks[i].date + " - " + data.tasks[i].name + ' (' + users + ')<button onclick="remind(\'' +data.tasks[i].name +'\')" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-bell" aria-hidden="true"></span></button><button onclick="deleteTask(\'' +data.tasks[i].name +'\')" type="button" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-erase" aria-hidden="true"></span></button></li>');
+                }
+            });
+        }
+    </script>
+
+</head>
+<body>
+
+
+<div class = "col-sm-8 center col-md-8 col-md-offset-2">
+<div style="display: block;" class="alert alert-warning" id="errorAlert">Make sure you filled in the form correctly</div>
+<div style="display: block;" class="alert alert-success" id="succededAlert">The task has been inserted in the database!</div>
+<h1>Tasks</h1>
+    <ul class="tasklist">
+
+    </ul>
+<a id="showform" href="#">Add a new task</a>
+
+
+<div class="container">
+    <h1>Add a task</h1>
+    <div class="row">
+        <div class='col-sm-6'>
+            <div class="jumbotron">
+                <form name="addTask">
+                    <div class="form-group">
+                        <h5>Due date and time:</h5>
+                        <div class='input-group date' id='datetimepicker1'>
+                            <input type='text' class="form-control" id="date" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <h5>Who should perform the task:</h5>
+                        <div class="input-group" id="flatmates">
+                        <!-- checkboxes loaded from server -->
+                        </div>
+                        <a id="everyone" href="#">Everyone</a>
+                        <a id="noone" href="#">Uncheck all</a>
+                    </div>
+
+                    <div class="form-group">
+                            <input class="form-control"  placeholder="Name of the task" autocomplete="off" type="text" id="taskname">
+
+                        </div>
+                    <div class="form-group">
+                        <input class="btn btn-success" value="Add" id="addtaskbtn" type="submit">
+                    </div>
+
+                    <a href="#" id="hideform">Done</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+
+</body>
+</html>

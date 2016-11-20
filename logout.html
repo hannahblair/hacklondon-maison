@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Logout</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <script type="text/javascript">
+        function delete_cookie( name ) {
+            document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        }
+        function load() 
+        {
+            delete_cookie('user');
+            window.location.replace('/');
+        }
+        window.onload = load();
+        </script>
+    </head>
+    </body>
+</html>

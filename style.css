@@ -1,0 +1,118 @@
+#bg {
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    z-index: 0;
+}
+#bg img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    min-width: 50%;
+    min-height: 50%;
+    z-index: -1;
+}
+
+/*    --------------------------------------------------
+	:: Login Section
+	-------------------------------------------------- */
+#login {
+    padding-top: 120px;
+    border-radius: 20px;
+    background-color: rgba(0, 0, 0, 0.4);
+
+}
+
+#logo img
+{
+    position: fixed;
+    left: 37%;
+    padding-top: 120px;
+    border-radius: 20px;
+}
+
+#welcometext {
+    color: #ffffff;
+    font-family: "Source Code Pro";
+    position: absolute;
+}
+
+#login .form-wrap {
+    width: 30%;
+    margin: 0 auto;
+    border-radius: 20px;
+    background-color:transparent !important;
+    border:none !important;
+
+}
+
+#login h1 {
+    color: #ffffff;
+    font-size: 45px;
+    text-align: center;
+    font-weight: bold;
+    padding-bottom: 150px;
+    font-family: "Arial";
+
+}
+#login .form-group {
+    margin-bottom: 5px;
+    background-color:transparent !important;
+    border-radius: 50px;
+    border:none !important;
+
+}
+
+#login .btn.btn-custom {
+    font-size: 13px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 20px;
+}
+
+/*    --------------------------------------------------
+	:: Inputs & Buttons
+	-------------------------------------------------- */
+
+.btn-custom {
+    color: #ffffff;
+    background-color: #43A5CA;
+    border-radius: 20px;
+
+}
+.btn-custom:hover,
+.btn-custom:focus {
+    color: #ffffff;
+}
+
+/*    --------------------------------------------------
+    :: Footer
+	-------------------------------------------------- */
+#footer {
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+}
+#footer p {
+    margin-bottom: 0;
+}
+
+input.rounded {
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    font-size: 15px;
+    padding: 4px 10px;
+    background-color: rgba(255, 255, 255, 0.4);
+    border: none;
+    outline: 0;
+
+    -webkit-appearance: none;
+}
+input.rounded:focus {
+    border-color: #339933;
+}
